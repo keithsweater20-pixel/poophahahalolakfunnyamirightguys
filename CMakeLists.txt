@@ -20,3 +20,15 @@ endif()
 
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 setup_geode_mod(${PROJECT_NAME})
+
+# The iOS bindings generator emits FMOD declarations in GeneratedSource.cpp,
+# but that translation unit may not include the FMOD umbrella header.
+# Force-include it for the generated bindings target on iOS.
+if (CMAKE_SYSTEM_NAME STREQUAL "iOS" OR IOS)
+  if (TARGET GeodeBindings)
+    target_compile_options(GeodeBindings PRIVATE
+      "$<$<COMPILE_LANGUAGE:CXX>:-include>"
+      "$<$<COMPILE_LANGUAGE:CXX>:Geode/fmod/fmod.hpp>"
+    )
+  endif()
+endif()
